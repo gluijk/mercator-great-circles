@@ -106,8 +106,8 @@ deltalong=function(lat, d=1000, R=6371.23) {
     # theta1 = theta2 = lat
     
     # Convert degrees to radians
-    deg2rad <- function(deg) deg * pi / 180
-    rad2deg <- function(rad) rad * 180 / pi
+    deg2rad=function(deg) deg * pi / 180
+    rad2deg=function(rad) rad * 180 / pi
 
     return(rad2deg(
         acos( (cos(d/R)-sin(deg2rad(lat))^2) / cos(deg2rad(lat))^2 )
