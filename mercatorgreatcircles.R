@@ -44,7 +44,7 @@ lonlat_df_to_mercator_km <- function(df, R = 6371.23) {
     y_km <- R * log(tan(pi / 4 + lat_rad / 2))
     
     # Return dataframe with original and projected coordinates
-    cbind(df, x_km = x_km, y_km = y_km)
+    return( cbind(df, x_km = x_km, y_km = y_km) )
 }
 
 # Equispaced interpolation of (long, lat) points along a great circle
@@ -109,10 +109,31 @@ deltalong=function(lat, d=1000, R=6371.23) {
     deg2rad=function(deg) deg * pi / 180
     rad2deg=function(rad) rad * 180 / pi
 
-    return(rad2deg(
+    delta=rad2deg(
         acos( (cos(d/R)-sin(deg2rad(lat))^2) / cos(deg2rad(lat))^2 )
-        )
     )
+    
+    return(delta)
+}
+
+# Great circle distance in km between two given (long, lat) points
+great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
+    # R=6371.23 is Earth's average radius (km)
+    
+    # General great-circle distance formula (spherical law of cosines)
+    # calculates the shortest path between two points
+    # on the surface of a sphere:
+    # d = R * acos( sin(theta1) * sin(theta2) +
+    #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
+
+    # Convert degrees to radians
+    deg2rad=function(deg) deg * pi / 180
+
+    d=R*acos(
+        sin(deg2rad(lat1))*sin(deg2rad(lat2)) +
+        cos(deg2rad(lat1))*cos(deg2rad(lat2))*cos(deg2rad(long2)-deg2rad(long1))
+      )
+    return(d)
 }
 
 
@@ -136,13 +157,30 @@ DT=lonlat_df_to_mercator_km(DT)  # add Mercator (x,y) columns
 
 # All flight destinations in (long, lat) provided by ChatGPT
 cities=data.frame(
-    city = c("Madrid", "New York", "Los Angeles", "Mexico City", "Bogotá",
+    city = c("Madrid", "New York", "Los Angeles", "Mexico City", "Bogota",
              "Buenos Aires", "Moscow", "Tokyo", "Johannesburg", "Sydney"),
     long = c(-3.7038, -74.0060, -118.2437, -99.1332, -74.0721,
              -58.3816, 37.6173, 139.6917, 28.0473, 151.2093),
     lat  = c(40.4168, 40.7128, 34.0522, 19.4326, 4.7110,
              -34.6037, 55.7558, 35.6895, -26.2041, -33.8688)
 )
+NCITIES=nrow(cities)
+
+# Calculate and display great circle distances from Madrid
+cities$km2madrid=great_circle_distance(cities$long[1], cities$lat[1],
+                                       cities$long, cities$lat)
+cities=cities[order(cities$km2madrid), ]  # order by distance asc
+for (i in 2:NCITIES) print(paste0("Flight distance ", cities$city[1], "-",
+                 cities$city[i], ": ", round(cities$km2madrid[i], 1), " km"))
+# Bar plot with distances from Madrid
+MAXIMO=max(cities$km2madrid)
+rango=2:NCITIES
+barheights=barplot(cities$km2madrid[rango], names.arg=cities$city[rango],
+        main="Flight distance in km from Madrid to...",
+        ylim=c(0, MAXIMO*1.2), cex.names=0.7)
+text(barheights, cities$km2madrid[rango]+MAXIMO/20,
+     labels=round(cities$km2madrid[rango],1),
+     col="red", cex=1)
 
 
 # Plot Maps:
@@ -208,7 +246,7 @@ dfos=lonlat_df_to_mercator_km(dfos)
 OFFSETKM=dfos$x_km  # offset conversion from long degrees to Mercator x_km
 rm(dfos)
 
-# Calculate 1000km side limits (only positive side around Greenwich meridian)
+# Calculate 1000km side limits (m1) (only positive lat around Greenwich meridian)
 m1=as.data.frame(matrix(nrow=NLATSL, ncol=2))
 colnames(m1)=c('long', 'lat')
 i=1
@@ -219,7 +257,7 @@ for (lat in seq(from=-85, to=85, length.out=NLATSL)) {
 }
 m1=lonlat_df_to_mercator_km(m1)
 
-# Calculate 1000km great circles
+# Calculate 1000km great circles (m2)
 m2=as.data.frame(matrix(nrow=NLATSC, ncol=2))
 colnames(m2)=c('long', 'lat')
 i=1
@@ -229,6 +267,8 @@ for (lat in seq(from=-85, to=85, length.out=NLATSC)) {
     i=i+1
 }
 m2=lonlat_df_to_mercator_km(m2)
+# Check all distances are 1000km
+print(great_circle_distance(m2$long, m2$lat, -m2$long, m2$lat))
 
 
 # Plot Maps:
