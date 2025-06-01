@@ -2,7 +2,7 @@
 # www.overfitting.net
 # https://www.overfitting.net/
 
-library(ggmap)  # map_data() provides (x,y) pairs forming all countries borders
+library(ggmap)  # map_data() provides (long, lat) pairs forming all countries borders
 library(data.table)
 library(Cairo)  # output antialiasing
 
