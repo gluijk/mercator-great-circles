@@ -136,6 +136,56 @@ deltalong=function(lat, d=1000, R=6371.23) {
     return(delta)
 }
 
+# Initial compass bearing (also called azimuth or rumbo) between two geographic
+# coordinates (long, lat) when following the great-circle
+initial_bearing <- function(long1, lat1, long2, lat2) {
+    # Convert degrees to radians
+    deg2rad <- function(deg) deg * pi / 180
+    rad2deg <- function(rad) rad * 180 / pi
+    
+    long1 <- deg2rad(long1)
+    lat1 <- deg2rad(lat1)
+    long2 <- deg2rad(long2)
+    lat2 <- deg2rad(lat2)
+    
+    delta_long <- long2 - long1
+    
+    x <- sin(delta_long) * cos(lat2)
+    y <- cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(delta_long)
+    
+    initial_bearing <- atan2(x, y)
+    compass_bearing <- (rad2deg(initial_bearing) + 360) %% 360
+    
+    return(compass_bearing)
+}
+
+# Loxodromic (rhumb line) bearing, the constant compass heading that maintains
+# a fixed angle with meridians (i.e., straight lines on a Mercator projection)
+rhumb_bearing <- function(long1, lat1, long2, lat2) {
+    # Convert degrees to radians
+    deg2rad <- function(deg) deg * pi / 180
+    rad2deg <- function(rad) rad * 180 / pi
+    
+    long1 <- deg2rad(long1)
+    lat1 <- deg2rad(lat1)
+    long2 <- deg2rad(long2)
+    lat2 <- deg2rad(lat2)
+    
+    delta_long <- long2 - long1
+    
+    # Handle crossing the antimeridian
+    if (abs(delta_long) > pi) {
+        delta_long <- ifelse(delta_long > 0, delta_long - 2 * pi, delta_long + 2 * pi)
+    }
+    
+    delta_psi <- log(tan(pi/4 + lat2/2) / tan(pi/4 + lat1/2))
+    
+    bearing_rad <- atan2(delta_long, delta_psi)
+    bearing_deg <- (rad2deg(bearing_rad) + 360) %% 360
+    
+    return(bearing_deg)
+}
+
 
 ################################################################################
 
@@ -167,11 +217,14 @@ cities=data.frame(
 NCITIES=nrow(cities)
 
 # Calculate and display great circle distances from Madrid
-cities$km2madrid=great_circle_distance(cities$long[1], cities$lat[1],
-                                       cities$long, cities$lat)
+cities$km2madrid=great_circle_distance(cities$long[cities$city=="Madrid"],
+                                       cities$lat[cities$city=="Madrid"],
+                                       cities$long,
+                                       cities$lat)
 cities=cities[order(cities$km2madrid), ]  # order by distance asc
-for (i in 2:NCITIES) print(paste0("Flight distance ", cities$city[1], "-",
-                 cities$city[i], ": ", round(cities$km2madrid[i], 1), " km"))
+for (i in 2:NCITIES) print(paste0("Flight distance ",
+                cities$city[cities$city=="Madrid"], "-",
+                cities$city[i], ": ", round(cities$km2madrid[i], 1), " km"))
 # Bar plot with distances from Madrid
 MAXIMO=max(cities$km2madrid)
 rango=2:NCITIES
