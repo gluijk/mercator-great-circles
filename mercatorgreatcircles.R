@@ -136,9 +136,9 @@ deltalong=function(lat, d=1000, R=6371.23) {
     return(delta)
 }
 
-# Initial compass bearing (also called azimuth or rumbo) between two geographic
+# Initial compass bearing (also called azimuth) between two geographic
 # coordinates (long, lat) when following the great-circle
-initial_bearing <- function(long1, lat1, long2, lat2) {
+great_circle_initial_bearing <- function(long1, lat1, long2, lat2) {
     # Convert degrees to radians
     deg2rad <- function(deg) deg * pi / 180
     rad2deg <- function(rad) rad * 180 / pi
@@ -161,7 +161,7 @@ initial_bearing <- function(long1, lat1, long2, lat2) {
 
 # Loxodromic (rhumb line) bearing, the constant compass heading that maintains
 # a fixed angle with meridians (i.e., straight lines on a Mercator projection)
-rhumb_bearing <- function(long1, lat1, long2, lat2) {
+loxodromic_rhumb_bearing <- function(long1, lat1, long2, lat2) {
     # Convert degrees to radians
     deg2rad <- function(deg) deg * pi / 180
     rad2deg <- function(rad) rad * 180 / pi
