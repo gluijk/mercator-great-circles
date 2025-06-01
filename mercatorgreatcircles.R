@@ -9,11 +9,11 @@ library(Cairo)  # output antialiasing
 
 # GIS functions (first two coded by ChatGPT)
 
-# Conversion from (long, lat) to Mercator (x,y) coordinates in km
-lonlat_df_to_mercator_km <- function(df, R=6371.23) {
+# Conversion from (long, lat) to Mercator (x, y) coordinates in km
+lonlat_df_to_mercator_km <- function(df, R = 6371.23) {
     # R=6371.23 is Earth's average radius (km)
     
-    # NOTE:
+    # About the Mercator projection:
     # The Mercator coordinates in km are not true Euclidean distances.
     # While the units are in km, they do not correspond directly
     # to real-world distances between points, especially as you move away
@@ -47,7 +47,7 @@ lonlat_df_to_mercator_km <- function(df, R=6371.23) {
     cbind(df, x_km = x_km, y_km = y_km)
 }
 
-# Equispaced interpolation of (long,lat) points along a great circle
+# Equispaced interpolation of (long, lat) points along a great circle
 # using spherical linear interpolation (slerp)
 great_circle_points_manual <- function(long1, lat1, long2, lat2, n = 100) {
     # Convert degrees to radians
@@ -91,11 +91,10 @@ great_circle_points_manual <- function(long1, lat1, long2, lat2, n = 100) {
     return(data.frame(long = lon, lat = lat))
 }
 
+# Function that provides the longitude span at a given latitude
+# that covers a distance d in km along a great circle
 deltalong=function(lat, d=1000, R=6371.23) {
     # R=6371.23 is Earth's average radius (km)
-    
-    # Function that provides the longitude span at a given latitude
-    # that covers a distance d along a great circle
     
     # General great-circle distance formula (spherical law of cosines)
     # calculates the shortest path between two points
@@ -104,7 +103,7 @@ deltalong=function(lat, d=1000, R=6371.23) {
     #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
     
     # We are looking for deltalong = phi2 - phi1
-    # theta1 = theta2 = lat
+    # In our case (constante latitude): theta1 = theta2 = lat
     
     # Convert degrees to radians
     deg2rad=function(deg) deg * pi / 180
@@ -122,7 +121,7 @@ deltalong=function(lat, d=1000, R=6371.23) {
 # IMAGE DIMENSIONS
 DIMX=1920  # Full HD
 DIMY=1080  # 1920 x 1080 pixels
-NPOINTS=2000  # number of points of each flight route
+NPOINTS=2000  # number of points of each great circle (flight route)
 GAP=5
 
 # READ WORLD COORDINATES
@@ -135,7 +134,7 @@ DT=lonlat_df_to_mercator_km(DT)  # add Mercator (x,y) columns
 ############################
 # 1. DRAW SOME FLIGHTS ALONG GREAT CIRCLES
 
-# All flight destinations in  (long, lat)
+# All flight destinations in (long, lat) provided by ChatGPT
 cities=data.frame(
     city = c("Madrid", "New York", "Los Angeles", "Mexico City", "Bogotá",
              "Buenos Aires", "Moscow", "Tokyo", "Johannesburg", "Sydney"),
@@ -146,7 +145,8 @@ cities=data.frame(
 )
 
 
-# Plot Maps
+# Plot Maps:
+# Longitude/Latitude map
 CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subpixel")
     # Draw map
     plot(DT$long, DT$lat, main='Longitude/Latitude map', cex.main=4,
@@ -167,9 +167,10 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
                                       n=NPOINTS)
     points(flight$long, flight$lat, pch=20, cex=0.02, col='blue')
     
-    abline(h=0, v=0, lty='dotted')
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
+# Mercator map
 CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subpixel")
     # Draw map
     plot(DT$x_km, DT$y_km, main='Mercator map', cex.main=4,
@@ -192,22 +193,22 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
     flightmerc=lonlat_df_to_mercator_km(flight)
     points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='blue')
     
-    abline(h=0, v=0, lty='dotted')
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
 
 ############################
 # 2. DRAW SERIES OF 1000km GREAT CIRCLES AT DIFFERENT LATITUDES
 
-NLATSL=1001  # number of latitudes to compute for limits
+NLATSL=1001  # number of latitudes to compute for side limits
 NLATSC=21  # number of great circles to draw (odd number to include equator)
-OFFSETLO=10  # longitude offset in degrees
+OFFSETLO=10  # longitude offset in degrees (as in original map)
 dfos=data.frame(long=OFFSETLO, lat=0)  # lat value is irrelevant here
 dfos=lonlat_df_to_mercator_km(dfos)
 OFFSETKM=dfos$x_km  # offset conversion from long degrees to Mercator x_km
 rm(dfos)
 
-# Calculate 1000km limits (only positive side around Greenwich meridian)
+# Calculate 1000km side limits (only positive side around Greenwich meridian)
 m1=as.data.frame(matrix(nrow=NLATSL, ncol=2))
 colnames(m1)=c('long', 'lat')
 i=1
@@ -230,7 +231,8 @@ for (lat in seq(from=-85, to=85, length.out=NLATSC)) {
 m2=lonlat_df_to_mercator_km(m2)
 
 
-# Plot Maps
+# Plot Maps:
+# Longitude/Latitude map
 CairoPNG("Map_LongLat_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="subpixel")
     # Draw map
     plot(DT$long, DT$lat, main='Longitude/Latitude map', cex.main=4,
@@ -250,9 +252,10 @@ CairoPNG("Map_LongLat_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="sub
         points(flight$long, flight$lat, pch=20, cex=0.02, col='red')
     }
     
-    abline(h=0, v=0, lty='dotted')
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
+# Mercator map
 CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="subpixel")
     # Draw map
     plot(DT$x_km, DT$y_km, main='Mercator map', cex.main=4,
@@ -273,6 +276,6 @@ CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="su
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
     
-    abline(h=0, v=0, lty='dotted')
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
