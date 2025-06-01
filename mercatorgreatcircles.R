@@ -95,7 +95,7 @@ great_circle_points <- function(long1, lat1, long2, lat2, n = 100) {
 great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
     # R=6371.23 is Earth's average radius (km)
     
-    # General great-circle distance formula (spherical law of cosines)
+    # General great circle distance formula (spherical law of cosines)
     # calculates the shortest path between two points
     # on the surface of a sphere:
     # d = R * acos( sin(theta1) * sin(theta2) +
@@ -116,7 +116,7 @@ great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
 deltalong=function(lat, d=1000, R=6371.23) {
     # R=6371.23 is Earth's average radius (km)
     
-    # General great-circle distance formula (spherical law of cosines)
+    # General great circle distance formula (spherical law of cosines)
     # calculates the shortest path between two points
     # on the surface of a sphere:
     # d = R * acos( sin(theta1) * sin(theta2) +
@@ -137,7 +137,7 @@ deltalong=function(lat, d=1000, R=6371.23) {
 }
 
 # Initial compass bearing (also called azimuth) between two geographic
-# coordinates (long, lat) when following the great-circle
+# coordinates (long, lat) when following the great circle
 great_circle_initial_bearing <- function(long1, lat1, long2, lat2) {
     # Convert degrees to radians
     deg2rad <- function(deg) deg * pi / 180
