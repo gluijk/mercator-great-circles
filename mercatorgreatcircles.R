@@ -177,10 +177,10 @@ MAXIMO=max(cities$km2madrid)
 rango=2:NCITIES
 barheights=barplot(cities$km2madrid[rango], names.arg=cities$city[rango],
         main="Flight distance in km from Madrid to...",
-        ylim=c(0, MAXIMO*1.2), cex.names=0.7)
+        ylim=c(0, MAXIMO*1.2), axes=FALSE, cex.names=0.6)
 text(barheights, cities$km2madrid[rango]+MAXIMO/20,
      labels=round(cities$km2madrid[rango],1),
-     col="red", cex=1)
+     col="red", cex=0.7)
 
 
 # Plot Maps:
@@ -193,15 +193,17 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
         xlab="Longitude (°)", ylab="Latitude (°)")
     
     # Draw flight routes from Madrid
-    for (i in 2:nrow(cities)) {
+    for (i in 2:NCITIES) {
         flight=great_circle_points_manual(cities$long[1], cities$lat[1],
                                           cities$long[i], cities$lat[i],
                                           n=NPOINTS)    
         points(flight$long, flight$lat, pch=20, cex=0.02, col='red')
     }
     # NY-Tokyo
-    flight=great_circle_points_manual(cities$long[2], cities$lat[2],
-                                      cities$long[8], cities$lat[8],
+    flight=great_circle_points_manual(cities$long[cities$city=="New York"],
+                                      cities$lat[cities$city=="New York"],
+                                      cities$long[cities$city=="Tokyo"],
+                                      cities$lat[cities$city=="Tokyo"],
                                       n=NPOINTS)
     points(flight$long, flight$lat, pch=20, cex=0.02, col='blue')
     
@@ -217,7 +219,7 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
         xlab="Mercator km", ylab="Mercator km")
     
     # Draw flight routes from Madrid
-    for (i in 2:nrow(cities)) {
+    for (i in 2:NCITIES) {
         flight=great_circle_points_manual(cities$long[1], cities$lat[1],
                                           cities$long[i], cities$lat[i],
                                           n=NPOINTS)
@@ -225,8 +227,10 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
     # NY-Tokyo
-    flight=great_circle_points_manual(cities$long[2], cities$lat[2],
-                                      cities$long[8], cities$lat[8],
+    flight=great_circle_points_manual(cities$long[cities$city=="New York"],
+                                      cities$lat[cities$city=="New York"],
+                                      cities$long[cities$city=="Tokyo"],
+                                      cities$lat[cities$city=="Tokyo"],
                                       n=NPOINTS)
     flightmerc=lonlat_df_to_mercator_km(flight)
     points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='blue')
