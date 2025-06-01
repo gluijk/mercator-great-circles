@@ -1,6 +1,6 @@
 # Mercator maps and great circles
 # www.overfitting.net
-# https://www.overfitting.net/
+# https://www.overfitting.net/2025/06/el-astuto-mercator-mapas-y-grandes.html
 
 library(ggmap)  # map_data() provides (long, lat) pairs forming all countries borders
 library(data.table)
