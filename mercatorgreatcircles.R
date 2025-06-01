@@ -91,6 +91,26 @@ great_circle_points_manual <- function(long1, lat1, long2, lat2, n = 100) {
     return(data.frame(long = lon, lat = lat))
 }
 
+# Great circle distance in km between two given (long, lat) points
+great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
+    # R=6371.23 is Earth's average radius (km)
+    
+    # General great-circle distance formula (spherical law of cosines)
+    # calculates the shortest path between two points
+    # on the surface of a sphere:
+    # d = R * acos( sin(theta1) * sin(theta2) +
+    #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
+    
+    # Convert degrees to radians
+    deg2rad=function(deg) deg * pi / 180
+    
+    d=R*acos(
+        sin(deg2rad(lat1))*sin(deg2rad(lat2)) +
+            cos(deg2rad(lat1))*cos(deg2rad(lat2))*cos(deg2rad(long2)-deg2rad(long1))
+    )
+    return(d)
+}
+
 # Function that provides the longitude span at a given latitude
 # that covers a distance d in km along a great circle
 deltalong=function(lat, d=1000, R=6371.23) {
@@ -114,26 +134,6 @@ deltalong=function(lat, d=1000, R=6371.23) {
     )
     
     return(delta)
-}
-
-# Great circle distance in km between two given (long, lat) points
-great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
-    # R=6371.23 is Earth's average radius (km)
-    
-    # General great-circle distance formula (spherical law of cosines)
-    # calculates the shortest path between two points
-    # on the surface of a sphere:
-    # d = R * acos( sin(theta1) * sin(theta2) +
-    #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
-
-    # Convert degrees to radians
-    deg2rad=function(deg) deg * pi / 180
-
-    d=R*acos(
-        sin(deg2rad(lat1))*sin(deg2rad(lat2)) +
-        cos(deg2rad(lat1))*cos(deg2rad(lat2))*cos(deg2rad(long2)-deg2rad(long1))
-      )
-    return(d)
 }
 
 
