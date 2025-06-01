@@ -49,7 +49,7 @@ lonlat_df_to_mercator_km <- function(df, R = 6371.23) {
 
 # Equispaced interpolation of (long, lat) points along a great circle
 # using spherical linear interpolation (slerp)
-great_circle_points_manual <- function(long1, lat1, long2, lat2, n = 100) {
+great_circle_points <- function(long1, lat1, long2, lat2, n = 100) {
     # Convert degrees to radians
     deg2rad <- function(deg) deg * pi / 180
     rad2deg <- function(rad) rad * 180 / pi
@@ -247,17 +247,17 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
     
     # Draw flight routes from Madrid
     for (i in 2:NCITIES) {
-        flight=great_circle_points_manual(cities$long[1], cities$lat[1],
-                                          cities$long[i], cities$lat[i],
-                                          n=NPOINTS)    
+        flight=great_circle_points(cities$long[1], cities$lat[1],
+                                   cities$long[i], cities$lat[i],
+                                   n=NPOINTS)    
         points(flight$long, flight$lat, pch=20, cex=0.02, col='red')
     }
     # NY-Tokyo
-    flight=great_circle_points_manual(cities$long[cities$city=="New York"],
-                                      cities$lat[cities$city=="New York"],
-                                      cities$long[cities$city=="Tokyo"],
-                                      cities$lat[cities$city=="Tokyo"],
-                                      n=NPOINTS)
+    flight=great_circle_points(cities$long[cities$city=="New York"],
+                               cities$lat[cities$city=="New York"],
+                               cities$long[cities$city=="Tokyo"],
+                               cities$lat[cities$city=="Tokyo"],
+                               n=NPOINTS)
     points(flight$long, flight$lat, pch=20, cex=0.02, col='blue')
     
     abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
@@ -273,18 +273,18 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
     
     # Draw flight routes from Madrid
     for (i in 2:NCITIES) {
-        flight=great_circle_points_manual(cities$long[1], cities$lat[1],
-                                          cities$long[i], cities$lat[i],
-                                          n=NPOINTS)
+        flight=great_circle_points(cities$long[1], cities$lat[1],
+                                   cities$long[i], cities$lat[i],
+                                   n=NPOINTS)
         flightmerc=lonlat_df_to_mercator_km(flight)
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
     # NY-Tokyo
-    flight=great_circle_points_manual(cities$long[cities$city=="New York"],
-                                      cities$lat[cities$city=="New York"],
-                                      cities$long[cities$city=="Tokyo"],
-                                      cities$lat[cities$city=="Tokyo"],
-                                      n=NPOINTS)
+    flight=great_circle_points(cities$long[cities$city=="New York"],
+                               cities$lat[cities$city=="New York"],
+                               cities$long[cities$city=="Tokyo"],
+                               cities$lat[cities$city=="Tokyo"],
+                               n=NPOINTS)
     flightmerc=lonlat_df_to_mercator_km(flight)
     points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='blue')
     
@@ -343,9 +343,9 @@ CairoPNG("Map_LongLat_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="sub
     
     # Draw great circles
     for (i in 2:(nrow(m2)-1)) {
-        flight=great_circle_points_manual(m2$long[i]+OFFSETLO, m2$lat[i],
-                                         -m2$long[i]+OFFSETLO, m2$lat[i],
-                                          n=NPOINTS)    
+        flight=great_circle_points(m2$long[i]+OFFSETLO, m2$lat[i],
+                                  -m2$long[i]+OFFSETLO, m2$lat[i],
+                                   n=NPOINTS)    
         points(flight$long, flight$lat, pch=20, cex=0.02, col='red')
     }
     
@@ -366,9 +366,9 @@ CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="su
 
     # Draw great circles    
     for (i in 2:(nrow(m2)-1)) {
-        flight=great_circle_points_manual(m2$long[i]+OFFSETLO, m2$lat[i],
-                                         -m2$long[i]+OFFSETLO, m2$lat[i],
-                                          n=NPOINTS)
+        flight=great_circle_points(m2$long[i]+OFFSETLO, m2$lat[i],
+                                  -m2$long[i]+OFFSETLO, m2$lat[i],
+                                   n=NPOINTS)
         flightmerc=lonlat_df_to_mercator_km(flight)
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
