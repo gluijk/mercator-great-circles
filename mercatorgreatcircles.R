@@ -93,6 +93,7 @@ great_circle_points_manual <- function(long1, lat1, long2, lat2, n = 100) {
 
 deltalong=function(lat, d=1000, R=6371.23) {
     # R=6371.23 is Earth's average radius (km)
+    
     # Function that provides the longitude span at a given latitude
     # that covers a distance d along a great circle
     
@@ -119,13 +120,13 @@ deltalong=function(lat, d=1000, R=6371.23) {
 ################################################################################
 
 # IMAGE DIMENSIONS
-DIMX=1920  # Full HD animation
+DIMX=1920  # Full HD
 DIMY=1080  # 1920 x 1080 pixels
 NPOINTS=2000  # number of points of each flight route
 GAP=5
 
 # READ WORLD COORDINATES
-DT=data.table(map_data("world"))  # long/lat pairs for all countries
+DT=data.table(map_data("world"))  # (long, lat) pairs for all countries
 DT=unique(DT[, .(long, lat)])  # summarize to deduplicate points
 DT$long[DT$long>180]=DT$long[DT$long>180]-360  # offset out of range points
 DT=lonlat_df_to_mercator_km(DT)  # add Mercator (x,y) columns
@@ -134,7 +135,7 @@ DT=lonlat_df_to_mercator_km(DT)  # add Mercator (x,y) columns
 ############################
 # 1. DRAW SOME FLIGHTS ALONG GREAT CIRCLES
 
-# All flight destinations in  (long,lat)
+# All flight destinations in  (long, lat)
 cities=data.frame(
     city = c("Madrid", "New York", "Los Angeles", "Mexico City", "Bogotá",
              "Buenos Aires", "Moscow", "Tokyo", "Johannesburg", "Sydney"),
@@ -153,7 +154,7 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
         pch=20, cex=0.02, asp=1,
         xlab="Longitude (°)", ylab="Latitude (°)")
     
-    # Draw flight routes
+    # Draw flight routes from Madrid
     for (i in 2:nrow(cities)) {
         flight=great_circle_points_manual(cities$long[1], cities$lat[1],
                                           cities$long[i], cities$lat[i],
@@ -176,7 +177,7 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
         pch=20, cex=0.02, asp=1,
         xlab="Mercator km", ylab="Mercator km")
     
-    # Draw flight routes
+    # Draw flight routes from Madrid
     for (i in 2:nrow(cities)) {
         flight=great_circle_points_manual(cities$long[1], cities$lat[1],
                                           cities$long[i], cities$lat[i],
