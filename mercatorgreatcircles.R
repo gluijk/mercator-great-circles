@@ -102,8 +102,8 @@ deltalong=function(lat, d=1000, R=6371.23) {
     # d = R * acos( sin(theta1) * sin(theta2) +
     #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
     
-    # We are looking for deltalong = phi2 - phi1
-    # In our case (constante latitude): theta1 = theta2 = lat
+    # We are solving for deltalong = phi2 - phi1
+    # In our case (constant latitude): theta1 = theta2 = lat
     
     # Convert degrees to radians
     deg2rad=function(deg) deg * pi / 180
