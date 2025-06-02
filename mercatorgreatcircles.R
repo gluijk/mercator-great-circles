@@ -10,7 +10,7 @@ library(Cairo)  # output antialiasing
 # GIS functions (first two coded by ChatGPT)
 
 # Conversion from (long, lat) to Mercator (x, y) coordinates in km
-lonlat_df_to_mercator_km <- function(df, R = 6371.23) {
+longlat_to_mercatorkm <- function(df, R = 6371.23) {
     # R=6371.23 is Earth's average radius (km)
     
     # About the Mercator projection:
@@ -199,7 +199,7 @@ GAP=5
 DT=data.table(map_data("world"))  # (long, lat) pairs for all countries
 DT=unique(DT[, .(long, lat)])  # summarize to deduplicate points
 DT$long[DT$long>180]=DT$long[DT$long>180]-360  # offset out of range points
-DT=lonlat_df_to_mercator_km(DT)  # add Mercator (x,y) columns
+DT=longlat_to_mercatorkm(DT)  # add Mercator (x,y) columns
 
 
 ############################
@@ -276,7 +276,7 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
         flight=great_circle_points(cities$long[1], cities$lat[1],
                                    cities$long[i], cities$lat[i],
                                    n=NPOINTS)
-        flightmerc=lonlat_df_to_mercator_km(flight)
+        flightmerc=longlat_to_mercatorkm(flight)
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
     # NY-Tokyo
@@ -285,7 +285,7 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
                                cities$long[cities$city=="Tokyo"],
                                cities$lat[cities$city=="Tokyo"],
                                n=NPOINTS)
-    flightmerc=lonlat_df_to_mercator_km(flight)
+    flightmerc=longlat_to_mercatorkm(flight)
     points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='blue')
     
     abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
@@ -299,7 +299,7 @@ NLATSL=1001  # number of latitudes to compute for side limits
 NLATSC=21  # number of great circles to draw (odd number to include equator)
 OFFSETLO=10  # longitude offset in degrees (as in original map)
 dfos=data.frame(long=OFFSETLO, lat=0)  # lat value is irrelevant here
-dfos=lonlat_df_to_mercator_km(dfos)
+dfos=longlat_to_mercatorkm(dfos)
 OFFSETKM=dfos$x_km  # offset conversion from long degrees to Mercator x_km
 rm(dfos)
 
@@ -312,7 +312,7 @@ for (lat in seq(from=-85, to=85, length.out=NLATSL)) {
     m1$lat[i]=lat
     i=i+1
 }
-m1=lonlat_df_to_mercator_km(m1)
+m1=longlat_to_mercatorkm(m1)
 
 # Calculate 1000km great circles (m2)
 m2=as.data.frame(matrix(nrow=NLATSC, ncol=2))
@@ -323,7 +323,7 @@ for (lat in seq(from=-85, to=85, length.out=NLATSC)) {
     m2$lat[i]=lat
     i=i+1
 }
-m2=lonlat_df_to_mercator_km(m2)
+m2=longlat_to_mercatorkm(m2)
 # Check all distances are 1000km
 print(great_circle_distance(m2$long, m2$lat, -m2$long, m2$lat))
 
@@ -369,7 +369,7 @@ CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="su
         flight=great_circle_points(m2$long[i]+OFFSETLO, m2$lat[i],
                                   -m2$long[i]+OFFSETLO, m2$lat[i],
                                    n=NPOINTS)
-        flightmerc=lonlat_df_to_mercator_km(flight)
+        flightmerc=longlat_to_mercatorkm(flight)
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
     
