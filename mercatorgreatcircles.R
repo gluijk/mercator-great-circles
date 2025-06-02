@@ -113,7 +113,7 @@ great_circle_distance=function(long1, lat1, long2, lat2, R=6371.23) {
 
 # Function that provides the longitude span at a given latitude
 # that covers a distance d in km along a great circle
-deltalong=function(lat, d=1000, R=6371.23) {
+longspan_latdistance=function(lat, d=1000, R=6371.23) {
     # R=6371.23 is Earth's average radius (km)
     
     # General great circle distance formula (spherical law of cosines)
@@ -122,7 +122,7 @@ deltalong=function(lat, d=1000, R=6371.23) {
     # d = R * acos( sin(theta1) * sin(theta2) +
     #     cos(theta1) * cos(theta2) * cos(phi2 - phi1) )
     
-    # We are solving for deltalong = phi2 - phi1
+    # We are solving for longspan_latdistance = phi2 - phi1
     # In our case (constant latitude): theta1 = theta2 = lat
     
     # Convert degrees to radians
@@ -308,7 +308,7 @@ m1=as.data.frame(matrix(nrow=NLATSL, ncol=2))
 colnames(m1)=c('long', 'lat')
 i=1
 for (lat in seq(from=-85, to=85, length.out=NLATSL)) {
-    m1$long[i]=deltalong(lat)/2  # divided by 2 because we'll replicate it L/R
+    m1$long[i]=longspan_latdistance(lat)/2  # /2 to replicate it L/R
     m1$lat[i]=lat
     i=i+1
 }
@@ -319,7 +319,7 @@ m2=as.data.frame(matrix(nrow=NLATSC, ncol=2))
 colnames(m2)=c('long', 'lat')
 i=1
 for (lat in seq(from=-85, to=85, length.out=NLATSC)) {
-    m2$long[i]=deltalong(lat)/2  # divided by 2 because we'll replicate it L/R
+    m2$long[i]=longspan_latdistance(lat)/2  # /2 to replicate it L/R
     m2$lat[i]=lat
     i=i+1
 }
