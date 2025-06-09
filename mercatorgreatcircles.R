@@ -214,6 +214,7 @@ cities=data.frame(
     lat  = c(40.4168, 40.7128, 34.0522, 19.4326, 4.7110,
              -34.6037, 55.7558, 35.6895, -26.2041, -33.8688)
 )
+cities=longlat_to_mercatorkm(cities)
 NCITIES=nrow(cities)
 
 # Calculate and display great circle distances from Madrid
@@ -244,6 +245,7 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
         xlim=c(-170,170), ylim=c(-75, 75),  # crop Antarctica a bit
         pch=20, cex=0.02, asp=1,
         xlab="Longitude (°)", ylab="Latitude (°)")
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
     
     # Draw flight routes from Madrid
     for (i in 2:NCITIES) {
@@ -259,8 +261,8 @@ CairoPNG("Map_LongLat_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="subp
                                cities$lat[cities$city=="Tokyo"],
                                n=NPOINTS)
     points(flight$long, flight$lat, pch=20, cex=0.02, col='blue')
-    
-    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
+    # Cities names
+    text(cities$long, cities$lat, cities$city, col='darkgreen', cex=3)
 dev.off()
 
 # Mercator map
@@ -270,6 +272,7 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
         ylim=c(-12000, 16000),  # crop Antarctica a bit
         pch=20, cex=0.02, asp=1,
         xlab="Mercator km", ylab="Mercator km")
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
     
     # Draw flight routes from Madrid
     for (i in 2:NCITIES) {
@@ -287,8 +290,8 @@ CairoPNG("Map_Mercator_FLIGHTS.png", width=DIMX*2, height=DIMY*2, antialias="sub
                                n=NPOINTS)
     flightmerc=longlat_to_mercatorkm(flight)
     points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='blue')
-    
-    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
+    # Cities names
+    text(cities$x_km, cities$y_km, cities$city, col='darkgreen', cex=3)
 dev.off()
 
 
@@ -336,6 +339,7 @@ CairoPNG("Map_LongLat_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="sub
          xlim=c(-170,170), ylim=c(-75, 75),  # crop Antarctica a bit
          pch=20, cex=0.02, asp=1,
          xlab="Longitude (°)", ylab="Latitude (°)")
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
     
     # Draw side limits
     lines( m1$long+OFFSETLO, m1$lat, type='l', col='red', lty='longdash')
@@ -348,8 +352,6 @@ CairoPNG("Map_LongLat_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="sub
                                    n=NPOINTS)    
         points(flight$long, flight$lat, pch=20, cex=0.02, col='red')
     }
-    
-    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
 # Mercator map
@@ -359,6 +361,7 @@ CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="su
          ylim=c(-13000, 16000),  # crop Antarctica a bit
          pch=20, cex=0.02, asp=1,
          xlab="Mercator km", ylab="Mercator km")
+    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
     
     # Draw side limits
     lines( m1$x_km+OFFSETKM, m1$y_km, type='l', col='red', lty='longdash')
@@ -372,7 +375,5 @@ CairoPNG("Map_Mercator_GC1000km.png", width=DIMX*2, height=DIMY*2, antialias="su
         flightmerc=longlat_to_mercatorkm(flight)
         points(flightmerc$x_km, flightmerc$y_km, pch=20, cex=0.02, col='red')
     }
-    
-    abline(h=0, v=0, lty='dotted')  # draw equator and Greenwich meridian
 dev.off()
 
